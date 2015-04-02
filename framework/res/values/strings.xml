@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pull_to_refresh_pull_label">下拉刷新</string>
+    <string name="pull_to_refresh_release_label">放开以刷新</string>
+    <string name="pull_to_refresh_refreshing_label">载入中</string>
+    <string name="pull_to_refresh_tap_label">点击这里刷新</string>
+
+
+    <string name="ptr_pull_to_refresh">下拉刷新</string>
+    <string name="ptr_release_to_refresh">释放立即刷新</string>
+    <string name="ptr_refreshing">正在刷新...</string>
+    <string name="ptr_refresh_succeed">刷新成功</string>
+    <string name="ptr_refresh_fail">刷新失败</string>
+    <string name="ptr_pullup_to_load">上拉加载更多</string>
+    <string name="ptr_release_to_load">释放立即加载</string>
+    <string name="ptr_loading">正在加载...</string>
+    <string name="ptr_load_succeed">加载成功</string>
+    <string name="ptr_load_fail">加载失败</string>
+
+
+    <string name="video_ok">确定</string>
+    <string name="video_cancle">取消</string>
+
+    <!-- empty View -->
+    <string name="empty_view_click_to_refresh">点击屏幕,重新加载</string>
+    <string name="error_view_no_data">暂无内容</string>
+    <string name="error_view_loading">加载中…</string>
+    <string name="error_view_load_error_click_to_refresh">内容加载失败\r\n点击重新加载</string>
+    <string name="error_view_network_error_click_to_refresh">没有可用的网络</string>
+    <string name="tip_network_error">没有可用的网络</string>
+
+</resources>

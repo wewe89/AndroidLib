@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="slider_listview_style">
+        <attr name="right_width" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="clear_edit_style">
+        <attr name="button_type" format="integer"/>
+        <attr name="right_image" format="reference"/>
+    </declare-styleable>
+    <declare-styleable name="PagerSlidingTabStrip">
+        <attr name="pstsIndicatorColor" format="color" />
+        <attr name="pstsUnderlineColor" format="color" />
+        <attr name="pstsDividerColor" format="color" />
+        <attr name="pstsIndicatorHeight" format="dimension" />
+        <attr name="pstsUnderlineHeight" format="dimension" />
+        <attr name="pstsDividerPadding" format="dimension" />
+        <attr name="pstsTabPaddingLeftRight" format="dimension" />
+        <attr name="pstsScrollOffset" format="dimension" />
+        <attr name="pstsTabBackground" format="reference" />
+        <attr name="pstsShouldExpand" format="boolean" />
+        <attr name="pstsTextAllCaps" format="boolean" />
+        <attr name="selectedTabTextColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="SegmentedTabGroup">
+        <attr name="stgDividerColor" format="color" />
+        <attr name="stgSelectedTabTextColor" format="color" />
+        <attr name="stgDividerWidth" format="dimension" />
+        <attr name="stgRadius" format="dimension" />
+        <attr name="stgTextSize" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="ActionSheets">
+        <attr name="actionSheetStyle" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="ActionSheet">
+        <attr name="actionSheetBackground" format="color|reference" />
+        <attr name="cancelButtonBackground" format="color|reference" />
+        <attr name="itemButtonBackground" format="reference" />
+        <attr name="cancelButtonTextColor" format="color|reference" />
+        <attr name="itemButtonTextColor" format="color|reference" />
+        <attr name="actionSheetPadding" format="dimension|reference" />
+        <attr name="itemButtonSpacing" format="dimension|reference" />
+        <attr name="cancelButtonMarginTop" format="dimension|reference" />
+        <attr name="actionSheetTextSize" format="dimension|reference" />
+        <attr name="itemDividerBackground" format="color|reference" />
+        <attr name="itemDividerHeight" format="dimension|reference" />
+    </declare-styleable>
+    <declare-styleable name="PullToRefreshLayout">
+        <attr name="ptr_header_view" format="reference" />
+        <attr name="ptr_contentid" format="reference" />
+        <attr name="ptr_buttom_view" format="reference" />
+        <attr name="ptr_pull_down" format="boolean" />
+        <attr name="ptr_pull_up" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="DotView">
+        <attr name="dot_radius" format="dimension" />
+        <attr name="dot_span" format="dimension" />
+        <attr name="dot_unselected_color" format="integer" />
+        <attr name="dot_selected_color" format="integer" />
+    </declare-styleable>
+
+</resources>
