@@ -1,8 +1,5 @@
 package com.wewe.android.util;
 
-import android.text.format.*;
-import android.util.TimeUtils;
-
 /**
  * Created by Administrator on 2015/1/15.
  */
