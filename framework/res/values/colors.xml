@@ -9,6 +9,9 @@
     <color name="grid_state_focused">#80000000</color>
     <color name="empty_layout_backgrounk">#EBEBEB</color>
 
+    <color name="ptr_bg_buttomview">@color/gray</color>
+    <color name="ptr_bg_headview">@color/gray</color>
+
     <!-- 白色 -->
     <color name="ivory">#fffff0</color>
     <!-- 象牙色 -->

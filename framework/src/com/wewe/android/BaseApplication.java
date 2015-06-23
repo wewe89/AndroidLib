@@ -137,10 +137,7 @@ public class BaseApplication extends Application {
 
     protected void init() {
         NetworkStatusManager.init(this);
-        DisplayMetrics dm = new DisplayMetrics();
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(dm);
-        LocalDisplay.init(dm);
+        LocalDisplay.init();
 
     }
 

@@ -3,16 +3,21 @@ package com.wewe.android.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import  static com.wewe.android.util.LogUtils.*;
+
+import static com.wewe.android.util.LogUtils.*;
+
 /**
  * Created by Administrator on 2015/1/15.
  */
 public class DateUtils {
-    private static final String TAG=makeLogTag(DateUtils.class);
-    public static String toTime(int i){
+    private static final String TAG = makeLogTag(DateUtils.class);
+
+    public static String toTime(int i) {
         return android.text.format.DateUtils.formatElapsedTime(i);
     }
+
     private static GregorianCalendar mCurrentTime;
+
     static {
         Calendar calendar = Calendar.getInstance();
         mCurrentTime = new GregorianCalendar(calendar.get(Calendar.YEAR),
@@ -29,22 +34,24 @@ public class DateUtils {
         } else if (isSameWeek(date)) {
             return getWeekDay(date) + genDayString(date);
         } else if (isSameYear(date)) {
-            return genMonthStr(date)+genDayString(date);
+            return genMonthStr(date) + genDayString(date);
         } else
-            return genYearStr(date)+genMonthStr(date)+genDayString(date);
+            return genYearStr(date) + genMonthStr(date) + genDayString(date);
     }
 
     public static String genYearStr(Date date) {
         StringBuilder builder = new StringBuilder();
-        builder.append(date.getYear()+1900).append("年");
+        builder.append(date.getYear() + 1900).append("年");
         return builder.toString();
     }
+
     public static String genMonthStr(Date date) {
         StringBuilder builder = new StringBuilder();
         builder.append(date.getMonth() + 1).append("月").append(date.getDate())
                 .append("日 ");
         return builder.toString();
     }
+
     public static boolean isSameYear(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -94,14 +101,15 @@ public class DateUtils {
         return str;
     }
 
-    public static boolean isCloseEnough(long lastTime,long preTime) {
+    public static boolean isCloseEnough(long lastTime, long preTime) {
 //        LOGI(TAG,new Date(lastTime).toLocaleString()+"--"+new Date(preTime).toLocaleString());
-        return lastTime-preTime<60000;
+        return lastTime - preTime < 60000;
     }
 
     private static String genDayString(Date date) {
         StringBuilder builder = new StringBuilder();
         int hours = date.getHours();
+        int min = date.getMinutes();
         if (hours < 12) {
             builder.append("早上");
         } else if (hours < 13) {
@@ -111,7 +119,7 @@ public class DateUtils {
         else
             builder.append("晚上");
         builder.append(hours < 10 ? "0" + hours : hours).append(":")
-                .append(date.getMinutes());
+                .append(min < 10 ? "0" + min : min);
         return builder.toString();
     }
 
@@ -128,8 +136,9 @@ public class DateUtils {
                 && currentDate.getMonth() == date.getMonth()
                 && currentDate.getYear() == date.getYear();
     }
+
     public static String toTimeBySecond(int length) {
-        return length+"秒";
+        return length + "秒";
     }
 
 }

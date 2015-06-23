@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class StringUtil {
     public static String bitmaptoString(Bitmap bitmap) {
-        if(bitmap==null)
+        if (bitmap == null)
             return null;
         // 将Bitmap转换成字符串
         String string = null;
@@ -55,7 +55,7 @@ public class StringUtil {
             return new String(Base64.decode(text, Base64.DEFAULT));
         } catch (Exception e) {
             e.printStackTrace();
-            return "";
+            return null;
         }
     }
 
@@ -68,7 +68,6 @@ public class StringUtil {
 
     /**
      * 编码
-     *
      * @param text
      * @return
      */
@@ -710,9 +709,7 @@ public class StringUtil {
 
     /**
      * Return a integer , default 0
-     *
      * @param number
-     * @param defaultV
      * @return
      */
     public static int intValue(Number number) {
@@ -746,6 +743,7 @@ public class StringUtil {
 
     /**
      * Specailed for length ,return start...end. <code><pre>
+     *
      * @return
      */
     public static String pad(int _length, String _str) {
@@ -766,9 +764,6 @@ public class StringUtil {
      * www.duxiu.com/readPage.jsp?dxid=123456789
      * if length = 20 get 'www.duxiu.com/r...56789'
      * </pre></code>
-     *
-     * @param length
-     * @param str
      * @return
      */
     public static String pad(int _length, CharSequence _str) {

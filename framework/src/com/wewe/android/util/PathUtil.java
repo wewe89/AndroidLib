@@ -5,6 +5,8 @@ import android.os.Environment;
 
 import java.io.File;
 
+import static com.wewe.android.util.LogUtils.LOGD;
+import static com.wewe.android.util.LogUtils.LOGI;
 import static com.wewe.android.util.LogUtils.LOGV;
 import static com.wewe.android.util.LogUtils.makeLogTag;
 
@@ -87,7 +89,7 @@ public class PathUtil {
         if (sdCardExist) {
             sdDir = Environment.getExternalStorageDirectory();//获取跟目录
         } else sdDir = Environment.getDataDirectory();
-        LOGV(TAG, sdDir.toString() + "");
+        LOGD(TAG, sdDir.toString() + "");
         return sdDir;
     }
 

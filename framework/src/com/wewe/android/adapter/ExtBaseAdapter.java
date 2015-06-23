@@ -50,6 +50,7 @@ public abstract class ExtBaseAdapter<T extends BaseBean> extends BaseAdapter {
     }
 
     public void setData(List<T> data) {
-        mData=data;
+        mData.clear();
+        mData.addAll(data);
     }
 }

@@ -1,12 +1,15 @@
 package com.wewe.android.widget.pullableview;
 
+import android.content.Context;
+import android.util.AttributeSet;
 import android.view.View;
-import android.widget.GridView;
+import android.widget.ExpandableListView;
 
-public class PullableGridView extends Pullable {
-	private GridView mContent;
-	public PullableGridView(View view) {
-		mContent=(GridView) view;
+public class PullableExpandableListView extends Pullable {
+	private ExpandableListView mContent;
+
+	public PullableExpandableListView(View view) {
+		mContent = (ExpandableListView) view;
 	}
 
 	@Override
@@ -33,13 +36,14 @@ public class PullableGridView extends Pullable {
 			return true;
 		} else if (mContent.getLastVisiblePosition() == (mContent.getCount() - 1)) {
 			// 滑到底部了
-			if (mContent.getChildAt(mContent.getLastVisiblePosition() - mContent.getFirstVisiblePosition()) != null
+			if (mContent.getChildAt(mContent.getLastVisiblePosition()
+					- mContent.getFirstVisiblePosition()) != null
 					&& mContent.getChildAt(
 							mContent.getLastVisiblePosition()
-									- mContent.getFirstVisiblePosition()).getBottom() <= mContent.getMeasuredHeight())
+									- mContent.getFirstVisiblePosition())
+							.getBottom() <= mContent.getMeasuredHeight())
 				return true;
 		}
 		return false;
 	}
-
 }

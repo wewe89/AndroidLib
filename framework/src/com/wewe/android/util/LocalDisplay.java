@@ -1,5 +1,7 @@
 package com.wewe.android.util;
 
+import android.content.res.Resources;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
 
@@ -11,7 +13,8 @@ public class LocalDisplay {
     public static int SCREEN_WIDTH_DP;
     public static int SCREEN_HEIGHT_DP;
 
-    public static void init(DisplayMetrics dm) {
+    public static void init() {
+        DisplayMetrics dm= Resources.getSystem().getDisplayMetrics();
         SCREEN_WIDTH_PIXELS = dm.widthPixels;
         SCREEN_HEIGHT_PIXELS = dm.heightPixels;
         SCREEN_DENSITY = dm.density;
@@ -29,9 +32,5 @@ public class LocalDisplay {
             desingDP = desingDP * SCREEN_WIDTH_DP / 320f;
         }
         return dp2px(desingDP);
-    }
-
-    public static void setPadding(final View view, float left, float top, float right, float bottom) {
-        view.setPadding(designedDP2px(left), dp2px(top), designedDP2px(right), dp2px(bottom));
     }
 }

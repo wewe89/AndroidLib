@@ -58,9 +58,7 @@ public class DotView extends LinearLayout implements OnClickListener {
     public final void setNum(int num) {
         if (num < 0)
             return;
-
         mTotal = num;
-
         removeAllViews();
         setOrientation(HORIZONTAL);
         for (int i = 0; i < num; i++) {
