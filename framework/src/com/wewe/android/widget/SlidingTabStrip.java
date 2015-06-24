@@ -1,451 +1,168 @@
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.wewe.android.widget;
 
+import android.R;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Style;
-import android.graphics.Typeface;
-import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.wewe.android.R;
+class SlidingTabStrip extends LinearLayout {
 
-import java.util.List;
-import java.util.Locale;
+    private static final int DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS = 0;
+    private static final byte DEFAULT_BOTTOM_BORDER_COLOR_ALPHA = 0x26;
+    private static final int SELECTED_INDICATOR_THICKNESS_DIPS = 3;
+    private static final int DEFAULT_SELECTED_INDICATOR_COLOR = 0xFF33B5E5;
 
-public class SlidingTabStrip extends HorizontalScrollView {
+    private final int mBottomBorderThickness;
+    private final Paint mBottomBorderPaint;
 
-    // @formatter:off
-    private static final int[] ATTRS = new int[] {
-            android.R.attr.textSize,
-            android.R.attr.textColor
-    };
-    // @formatter:on
+    private final int mSelectedIndicatorThickness;
+    private final Paint mSelectedIndicatorPaint;
 
-    private LinearLayout.LayoutParams defaultTabLayoutParams;
-    private LinearLayout.LayoutParams expandedTabLayoutParams;
+    private final int mDefaultBottomBorderColor;
 
-    public OnPageChangeListener delegatePageListener;
+    private int mSelectedPosition;
+    private float mSelectionOffset;
 
-    private LinearLayout tabsContainer;
-    private List<String> titles;
+    private SlidingTabLayout.TabColorizer mCustomTabColorizer;
+    private final SimpleTabColorizer mDefaultTabColorizer;
 
-    private int tabCount;
-
-    private int currentPosition = 0;
-    private int selectedPosition = 0;
-
-    private Paint rectPaint;
-    private Paint dividerPaint;
-
-    private int indicatorColor = 0xFF666666;
-    private int underlineColor = 0x1A000000;
-    private int dividerColor = 0x1A000000;
-
-    private boolean shouldExpand = false;
-    private boolean textAllCaps = true;
-
-    private int indicatorHeight = 8;
-    private int underlineHeight = 2;
-    private int dividerPadding = 12;
-    private int tabPadding = 24;
-    private int dividerWidth = 1;
-
-    private int tabTextSize = 12;
-    private int tabTextColor = 0xFF666666;
-    private int selectedTabTextColor = 0xFF666666;
-    private Typeface tabTypeface = null;
-    private int tabTypefaceStyle = Typeface.NORMAL;
-
-    private int tabBackgroundResId = R.color.lightgray;
-
-    private Locale locale;
-
-    public SlidingTabStrip(Context context) {
+    SlidingTabStrip(Context context) {
         this(context, null);
     }
 
-    public SlidingTabStrip(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public SlidingTabStrip(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-
-        setFillViewport(true);
+    SlidingTabStrip(Context context, AttributeSet attrs) {
+        super(context, attrs);
         setWillNotDraw(false);
 
-        tabsContainer = new LinearLayout(context);
-        tabsContainer.setOrientation(LinearLayout.HORIZONTAL);
-        tabsContainer.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        addView(tabsContainer);
+        final float density = getResources().getDisplayMetrics().density;
 
-        DisplayMetrics dm = getResources().getDisplayMetrics();
+        TypedValue outValue = new TypedValue();
+        context.getTheme().resolveAttribute(R.attr.colorForeground, outValue, true);
+        final int themeForegroundColor =  outValue.data;
 
-        indicatorHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, indicatorHeight, dm);
-        underlineHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, underlineHeight, dm);
-        dividerPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dividerPadding, dm);
-        tabPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, tabPadding, dm);
-        dividerWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dividerWidth, dm);
-        tabTextSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, tabTextSize, dm);
+        mDefaultBottomBorderColor = setColorAlpha(themeForegroundColor,
+                DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
 
-        // get system attrs (android:textSize and android:textColor)
+        mDefaultTabColorizer = new SimpleTabColorizer();
+        mDefaultTabColorizer.setIndicatorColors(DEFAULT_SELECTED_INDICATOR_COLOR);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, ATTRS);
+        mBottomBorderThickness = (int) (DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS * density);
+        mBottomBorderPaint = new Paint();
+        mBottomBorderPaint.setColor(mDefaultBottomBorderColor);
 
-        tabTextSize = a.getDimensionPixelSize(0, tabTextSize);
-        tabTextColor = a.getColor(1, tabTextColor);
-
-        a.recycle();
-
-        // get custom attrs
-
-        a = context.obtainStyledAttributes(attrs, R.styleable.PagerSlidingTabStrip);
-
-        indicatorColor = a.getColor(R.styleable.PagerSlidingTabStrip_pstsIndicatorColor, indicatorColor);
-        underlineColor = a.getColor(R.styleable.PagerSlidingTabStrip_pstsUnderlineColor, underlineColor);
-        dividerColor = a.getColor(R.styleable.PagerSlidingTabStrip_pstsDividerColor, dividerColor);
-        indicatorHeight = a.getDimensionPixelSize(R.styleable.PagerSlidingTabStrip_pstsIndicatorHeight, indicatorHeight);
-        underlineHeight = a.getDimensionPixelSize(R.styleable.PagerSlidingTabStrip_pstsUnderlineHeight, underlineHeight);
-        dividerPadding = a.getDimensionPixelSize(R.styleable.PagerSlidingTabStrip_pstsDividerPadding, dividerPadding);
-        tabPadding = a.getDimensionPixelSize(R.styleable.PagerSlidingTabStrip_pstsTabPaddingLeftRight, tabPadding);
-        tabBackgroundResId = a.getResourceId(R.styleable.PagerSlidingTabStrip_pstsTabBackground, tabBackgroundResId);
-        shouldExpand = a.getBoolean(R.styleable.PagerSlidingTabStrip_pstsShouldExpand, shouldExpand);
-        textAllCaps = a.getBoolean(R.styleable.PagerSlidingTabStrip_pstsTextAllCaps, textAllCaps);
-
-        a.recycle();
-
-        rectPaint = new Paint();
-        rectPaint.setAntiAlias(true);
-        rectPaint.setStyle(Style.FILL);
-
-        dividerPaint = new Paint();
-        dividerPaint.setAntiAlias(true);
-        dividerPaint.setStrokeWidth(dividerWidth);
-
-        defaultTabLayoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-        expandedTabLayoutParams = new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1.0f);
-
-        if (locale == null) {
-            locale = getResources().getConfiguration().locale;
-        }
-    }
-    public void setData(List<String> data){
-        this.titles=data;
-        notifyDataSetChanged();
-    }
-    public void notifyDataSetChanged() {
-        tabsContainer.removeAllViews();
-        tabCount = titles.size();
-        for (int i = 0; i < tabCount; i++) {
-                addTextTab(i, titles.get(i));
-        }
-        updateTabStyles();
-        getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                currentPosition = 0;
-                scrollToChild(currentPosition);
-            }
-        });
+        mSelectedIndicatorThickness = (int) (SELECTED_INDICATOR_THICKNESS_DIPS * density);
+        mSelectedIndicatorPaint = new Paint();
     }
 
-    public void addTextTab(final int position, String title) {
-
-        TextView tab = new TextView(getContext());
-        tab.setText(title);
-        tab.setGravity(Gravity.CENTER);
-        tab.setSingleLine();
-        addTab(position, tab);
-    }
-    private void addTab(final int position, View tab) {
-        tab.setFocusable(true);
-        tab.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                scrollToChild(position);
-            }
-        });
-        tab.setPadding(tabPadding, 0, tabPadding, 0);
-        tabsContainer.addView(tab, position, shouldExpand ? expandedTabLayoutParams : defaultTabLayoutParams);
+    void setCustomTabColorizer(SlidingTabLayout.TabColorizer customTabColorizer) {
+        mCustomTabColorizer = customTabColorizer;
+        invalidate();
     }
 
-    private void updateTabStyles() {
-
-        for (int i = 0; i < tabCount; i++) {
-
-            View v = tabsContainer.getChildAt(i);
-
-            v.setBackgroundResource(tabBackgroundResId);
-
-            if (v instanceof TextView) {
-
-                TextView tab = (TextView) v;
-                tab.setTextSize(TypedValue.COMPLEX_UNIT_PX, tabTextSize);
-                tab.setTypeface(tabTypeface, tabTypefaceStyle);
-                tab.setTextColor(tabTextColor);
-
-                // setAllCaps() is only available from API 14, so the upper case is made manually if we are on a
-                // pre-ICS-build
-                if (textAllCaps) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        tab.setAllCaps(true);
-                    } else {
-                        tab.setText(tab.getText().toString().toUpperCase(locale));
-                    }
-                }
-                if (i == selectedPosition) {
-                    tab.setTextColor(selectedTabTextColor);
-                }
-            }
-        }
-
+    void setSelectedIndicatorColors(int... colors) {
+        // Make sure that the custom colorizer is removed
+        mCustomTabColorizer = null;
+        mDefaultTabColorizer.setIndicatorColors(colors);
+        invalidate();
     }
 
-    private void scrollToChild(int position) {
-        if (tabCount == 0) {
-            return;
-        }
-        currentPosition=position;
-        selectedPosition=position;
-        updateTabStyles();
+    void onViewPagerPageChanged(int position, float positionOffset) {
+        mSelectedPosition = position;
+        mSelectionOffset = positionOffset;
         invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        if (isInEditMode() || tabCount == 0) {
-            return;
-        }
         final int height = getHeight();
-        // draw underline
-        rectPaint.setColor(underlineColor);
-        canvas.drawRect(0, height - underlineHeight, tabsContainer.getWidth(), height, rectPaint);
-        // draw indicator line
-        rectPaint.setColor(indicatorColor);
-        // default: line below current tab
-        View currentTab = tabsContainer.getChildAt(currentPosition);
-        float lineLeft = currentTab.getLeft();
-        float lineRight = currentTab.getRight();
+        final int childCount = getChildCount();
+        final SlidingTabLayout.TabColorizer tabColorizer = mCustomTabColorizer != null
+                ? mCustomTabColorizer
+                : mDefaultTabColorizer;
 
-        canvas.drawRect(lineLeft, height - indicatorHeight, lineRight, height, rectPaint);
+        // Thick colored underline below the current selection
+        if (childCount > 0) {
+            View selectedTitle = getChildAt(mSelectedPosition);
+            int left = selectedTitle.getLeft();
+            int right = selectedTitle.getRight();
+            int color = tabColorizer.getIndicatorColor(mSelectedPosition);
 
-        // draw divider
+            if (mSelectionOffset > 0f && mSelectedPosition < (getChildCount() - 1)) {
+                int nextColor = tabColorizer.getIndicatorColor(mSelectedPosition + 1);
+                if (color != nextColor) {
+                    color = blendColors(nextColor, color, mSelectionOffset);
+                }
 
-        dividerPaint.setColor(dividerColor);
-        for (int i = 0; i < tabCount - 1; i++) {
-            View tab = tabsContainer.getChildAt(i);
-            canvas.drawLine(tab.getRight(), dividerPadding, tab.getRight(), height - dividerPadding, dividerPaint);
-        }
-    }
+                // Draw the selection partway between the tabs
+                View nextTitle = getChildAt(mSelectedPosition + 1);
+                left = (int) (mSelectionOffset * nextTitle.getLeft() +
+                        (1.0f - mSelectionOffset) * left);
+                right = (int) (mSelectionOffset * nextTitle.getRight() +
+                        (1.0f - mSelectionOffset) * right);
+            }
 
+            mSelectedIndicatorPaint.setColor(color);
 
-
-    public void setIndicatorColor(int indicatorColor) {
-        this.indicatorColor = indicatorColor;
-        invalidate();
-    }
-
-    public void setIndicatorColorResource(int resId) {
-        this.indicatorColor = getResources().getColor(resId);
-        invalidate();
-    }
-
-    public int getIndicatorColor() {
-        return this.indicatorColor;
-    }
-
-    public void setIndicatorHeight(int indicatorLineHeightPx) {
-        this.indicatorHeight = indicatorLineHeightPx;
-        invalidate();
-    }
-
-    public int getIndicatorHeight() {
-        return indicatorHeight;
-    }
-
-    public void setUnderlineColor(int underlineColor) {
-        this.underlineColor = underlineColor;
-        invalidate();
-    }
-
-    public void setUnderlineColorResource(int resId) {
-        this.underlineColor = getResources().getColor(resId);
-        invalidate();
-    }
-
-    public int getUnderlineColor() {
-        return underlineColor;
-    }
-
-    public void setDividerColor(int dividerColor) {
-        this.dividerColor = dividerColor;
-        invalidate();
-    }
-
-    public void setDividerColorResource(int resId) {
-        this.dividerColor = getResources().getColor(resId);
-        invalidate();
-    }
-
-    public int getDividerColor() {
-        return dividerColor;
-    }
-
-    public void setUnderlineHeight(int underlineHeightPx) {
-        this.underlineHeight = underlineHeightPx;
-        invalidate();
-    }
-
-    public int getUnderlineHeight() {
-        return underlineHeight;
-    }
-
-    public void setDividerPadding(int dividerPaddingPx) {
-        this.dividerPadding = dividerPaddingPx;
-        invalidate();
-    }
-
-    public int getDividerPadding() {
-        return dividerPadding;
-    }
-    public void setShouldExpand(boolean shouldExpand) {
-        this.shouldExpand = shouldExpand;
-        notifyDataSetChanged();
-    }
-
-    public boolean getShouldExpand() {
-        return shouldExpand;
-    }
-
-    public boolean isTextAllCaps() {
-        return textAllCaps;
-    }
-
-    public void setAllCaps(boolean textAllCaps) {
-        this.textAllCaps = textAllCaps;
-    }
-
-    public void setTextSize(int textSizePx) {
-        this.tabTextSize = textSizePx;
-        updateTabStyles();
-    }
-
-    public int getTextSize() {
-        return tabTextSize;
-    }
-
-    public void setTextColor(int textColor) {
-        this.tabTextColor = textColor;
-        updateTabStyles();
-    }
-
-    public void setTextColorResource(int resId) {
-        this.tabTextColor = getResources().getColor(resId);
-        updateTabStyles();
-    }
-
-    public int getTextColor() {
-        return tabTextColor;
-    }
-
-    public void setSelectedTextColor(int textColor) {
-        this.selectedTabTextColor = textColor;
-        updateTabStyles();
-    }
-
-    public void setSelectedTextColorResource(int resId) {
-        this.selectedTabTextColor = getResources().getColor(resId);
-        updateTabStyles();
-    }
-
-    public int getSelectedTextColor() {
-        return selectedTabTextColor;
-    }
-
-    public void setTypeface(Typeface typeface, int style) {
-        this.tabTypeface = typeface;
-        this.tabTypefaceStyle = style;
-        updateTabStyles();
-    }
-
-    public void setTabBackground(int resId) {
-        this.tabBackgroundResId = resId;
-        updateTabStyles();
-    }
-
-    public int getTabBackground() {
-        return tabBackgroundResId;
-    }
-
-    public void setTabPaddingLeftRight(int paddingPx) {
-        this.tabPadding = paddingPx;
-        updateTabStyles();
-    }
-
-    public int getTabPaddingLeftRight() {
-        return tabPadding;
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(savedState.getSuperState());
-        currentPosition = savedState.currentPosition;
-        requestLayout();
-    }
-
-    @Override
-    public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState savedState = new SavedState(superState);
-        savedState.currentPosition = currentPosition;
-        return savedState;
-    }
-
-    static class SavedState extends BaseSavedState {
-        int currentPosition;
-
-        public SavedState(Parcelable superState) {
-            super(superState);
+            canvas.drawRect(left, height - mSelectedIndicatorThickness, right,
+                    height, mSelectedIndicatorPaint);
         }
 
-        private SavedState(Parcel in) {
-            super(in);
-            currentPosition = in.readInt();
-        }
+        // Thin underline along the entire bottom edge
+        canvas.drawRect(0, height - mBottomBorderThickness, getWidth(), height, mBottomBorderPaint);
+    }
+
+    /**
+     * Set the alpha value of the {@code color} to be the given {@code alpha} value.
+     */
+    private static int setColorAlpha(int color, byte alpha) {
+        return Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    /**
+     * Blend {@code color1} and {@code color2} using the given ratio.
+     *
+     * @param ratio of which to blend. 1.0 will return {@code color1}, 0.5 will give an even blend,
+     *              0.0 will return {@code color2}.
+     */
+    private static int blendColors(int color1, int color2, float ratio) {
+        final float inverseRation = 1f - ratio;
+        float r = (Color.red(color1) * ratio) + (Color.red(color2) * inverseRation);
+        float g = (Color.green(color1) * ratio) + (Color.green(color2) * inverseRation);
+        float b = (Color.blue(color1) * ratio) + (Color.blue(color2) * inverseRation);
+        return Color.rgb((int) r, (int) g, (int) b);
+    }
+
+    private static class SimpleTabColorizer implements SlidingTabLayout.TabColorizer {
+        private int[] mIndicatorColors;
 
         @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            super.writeToParcel(dest, flags);
-            dest.writeInt(currentPosition);
+        public final int getIndicatorColor(int position) {
+            return mIndicatorColors[position % mIndicatorColors.length];
         }
 
-        public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
+        void setIndicatorColors(int... colors) {
+            mIndicatorColors = colors;
+        }
     }
-
 }

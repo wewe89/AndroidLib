@@ -4,4 +4,5 @@
     <item type="id" name="CANCEL_BUTTON_ID">false</item>
 
     <item type="id" name="del_layout">false</item>
+    <item type="id" name="tv_unread_count">false</item>
 </resources>
