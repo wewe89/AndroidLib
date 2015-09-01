@@ -21,7 +21,7 @@ public abstract class ExtBaseAdapter<T extends BaseBean> extends BaseAdapter {
     }
 
     public void clear() {
-        if(mData!=null)mData.clear();
+        if (mData != null) mData.clear();
     }
 
     @Override
@@ -32,6 +32,10 @@ public abstract class ExtBaseAdapter<T extends BaseBean> extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public void remove(int position) {
+        mData.remove(position);
     }
 
     @Override
@@ -51,6 +55,10 @@ public abstract class ExtBaseAdapter<T extends BaseBean> extends BaseAdapter {
 
     public void setData(List<T> data) {
         mData.clear();
+        mData.addAll(data);
+    }
+
+    public void addAll(List<T> data) {
         mData.addAll(data);
     }
 }

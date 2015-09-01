@@ -136,9 +136,12 @@ public class StringUtil {
         return s == null || s.trim().equals("");
     }
 
+    public static String removeSpace(String s) {
+        return s.replace(" ","");
+    }
+
     /**
      * 判断一组字符串是否为空
-     *
      * @param s
      * @return
      */

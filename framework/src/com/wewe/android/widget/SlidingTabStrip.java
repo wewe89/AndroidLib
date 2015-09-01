@@ -92,7 +92,12 @@ class SlidingTabStrip extends LinearLayout {
         mSelectionOffset = positionOffset;
         invalidate();
     }
-
+    public int getSelectedIndicatorClolor(int position){
+        final SlidingTabLayout.TabColorizer tabColorizer = mCustomTabColorizer != null
+                ? mCustomTabColorizer
+                : mDefaultTabColorizer;
+        return tabColorizer.getIndicatorColor(position);
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         final int height = getHeight();

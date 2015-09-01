@@ -31,8 +31,6 @@ import java.util.UUID;
 public class BaseApplication extends Application {
    protected static Context _context;
     static Resources _resource;
-    private static String lastToast = "";
-    private static long lastToastTime;
 
     private static boolean sIsAtLeastGB;
 
@@ -57,7 +55,6 @@ public class BaseApplication extends Application {
     }
     /**
      * 获取App安装包信息
-     *
      * @return
      */
     public PackageInfo getPackageInfo() {
@@ -147,78 +144,6 @@ public class BaseApplication extends Application {
 
     public static Resources resources() {
         return _resource;
-    }
-
-    public static void showToast(int message) {
-        showToast(message, Toast.LENGTH_LONG, 0);
-    }
-
-    public static void showToast(String message) {
-        showToast(message, Toast.LENGTH_LONG, 0, GRAVITY);
-    }
-
-    public static void showToast(int message, int icon) {
-        showToast(message, Toast.LENGTH_LONG, icon);
-    }
-
-    public static void showToast(String message, int icon) {
-        showToast(message, Toast.LENGTH_LONG, icon, GRAVITY);
-    }
-
-    public static void showToastShort(int message) {
-        showToast(message, Toast.LENGTH_SHORT, Toast.LENGTH_SHORT);
-    }
-
-    public static void showToastShort(String message) {
-        showToast(message, Toast.LENGTH_SHORT, 0,
-                GRAVITY);
-    }
-
-    private static final int GRAVITY = Gravity.CENTER;
-
-    public static void showToastShort(int message, Object... args) {
-        showToast(message, Toast.LENGTH_SHORT, 0, GRAVITY, args);
-    }
-
-    public static void showToast(int message, int duration, int icon) {
-        showToast(message, duration, icon, GRAVITY);
-    }
-
-    public static void showToast(int message, int duration, int icon,
-                                 int gravity) {
-        showToast(context().getString(message), duration, icon, gravity);
-    }
-
-    public static void showToast(int message, int duration, int icon,
-                                 int gravity, Object... args) {
-        showToast(context().getString(message, args), duration, icon, gravity);
-    }
-
-    public static void showToast(String message, int duration, int icon,
-                                 int gravity) {
-        if (message != null && !message.equalsIgnoreCase("")) {
-            long time = System.currentTimeMillis();
-            if (!message.equalsIgnoreCase(lastToast)
-                    || Math.abs(time - lastToastTime) > 2000) {
-                View view = LayoutInflater.from(context()).inflate(
-                        R.layout.view_toast, null);
-                TextView tv = ((TextView) view.findViewById(R.id.toast_tv));
-                tv.setText(message);
-                if (icon != 0) {
-                    tv.setCompoundDrawables(context().getResources().getDrawable(icon), null, null, null);
-                }
-                tv.setHeight(LocalDisplay.dp2px(40));
-                tv.setWidth(LocalDisplay.SCREEN_WIDTH_PIXELS - 60);
-                Toast toast = new Toast(context());
-                toast.setView(view);
-                toast.setGravity(gravity, 0, 0);
-                toast.setDuration(duration);
-                toast.show();
-
-                lastToast = message;
-                lastToastTime = System.currentTimeMillis();
-            }
-        }
     }
 
 }
